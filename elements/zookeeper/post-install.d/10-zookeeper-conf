@@ -1,0 +1,8 @@
+#!/bin/bash
+# This file configures zookeeper
+
+$ZOOKEEPER_CONF="/var/zookeeper"
+
+echo "tickTime=2000" > $ZOOKEEPER_CONF
+echo "dataDir=/var/zookeeper" >> $ZOOKEEPER_CONF
+echo "clientPort=2181" >> $ZOOKEEPER_CONF

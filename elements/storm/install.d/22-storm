@@ -1,0 +1,62 @@
+#!/bin/bash
+# This script installs storm and its dependencies
+# More documentation on the README.md file
+
+install-packages wget unzip build-essential uuid-dev git libtool autoconf pkg-config tar
+
+tmp_dir=/tmp
+
+pushd $tem_dir
+echo "Installing ZeroMQ"
+wget http://download.zeromq.org/zeromq-2.1.7.tar.gz
+tar -xzf zeromq-2.1.7.tar.gz
+pushd zeromq-2.1.7
+./configure
+make
+sudo make install
+popd
+
+echo "Installing JZMQ"
+git clone https://github.com/nathanmarz/jzmq.git
+
+pushd jzmq/src
+touch classdist_noinst.stamp
+CLASSPATH=.:./.:$CLASSPATH javac -d . org/zeromq/ZMQ.java org/zeromq/ZMQException.java org/zeromq/ZMQQueue.java org/zeromq/ZMQForwarder.java org/zeromq/ZMQStreamer.java
+popd
+
+pushd $temp_dir/jzmq
+./autogen.sh 
+./configure
+make
+sudo make install
+popd
+
+echo "Creating Storm User"
+sudo groupadd -g 53001 storm
+sudo mkdir -p /app/home/storm
+sudo useradd -u 53001 -g 53001 -d /app/home/storm -s /bin/bash storm -c "Storm service account"
+sudo chmod 700 /app/home/storm
+sudo chage -I -1 -E -1 -m -1 -M -1 -W -1 -E -1 storm
+
+echo "Downloading Storm"
+wget https://dl.dropbox.com/u/133901206/storm-0.8.2.zip
+pushd /usr/local
+sudo unzip /tmp/storm-0.8.2.zip
+sudo chown -R storm:storm storm-0.8.2
+sudo ln -s storm-0.8.2 storm
+
+popd
+
+echo "Configuring Storm home"
+sudo mkdir -p /app/storm
+sudo chown -R storm:storm /app/storm
+sudo chmod 750 /app/storm
+
+echo "Installing Supervisor Deamon"
+
+install-packages supervisor chkconfig
+sudo chkconfig supervisord on
+sudo chmod 600 /etc/supervisord.conf
+
+sudo mkdir -p /var/log/storm
+sudo chown -R storm:storm /var/log/storm

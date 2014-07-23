@@ -1,0 +1,10 @@
+#!/bin/bash
+# This scrip installs zookeeper
+# More documentation on the README.md file
+
+install-packages wget 
+
+echo "Downloading Zookeeper"
+wget http://ftp.unicamp.br/pub/apache/zookeeper/stable/zookeeper-3.4.6.tar.gz
+
+mkdir -p /var/zookeeper
